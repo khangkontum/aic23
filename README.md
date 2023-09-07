@@ -5,4 +5,4 @@
 docker compose up -d
 ```
 
-- How to query? go to [doc](localhost:8000/docs)
+- How to query? go to ![doc](localhost:8000/docs)
