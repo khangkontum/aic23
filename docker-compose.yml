@@ -1,0 +1,6 @@
+services:
+  poetry-project:
+    container_name: aic-server
+    build: .
+    ports:
+      - "8000:8000"
