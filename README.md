@@ -1,5 +1,6 @@
 # Server for AIC23
 - Usage:
+- First download `.pkl` file and put in repo as `plato.pkl`.
 ```bash
 docker compose up -d
 ```

@@ -63,3 +63,4 @@ Temporary Items
 .python-version
 poetry.lock
 .envrc
+__pycache__
