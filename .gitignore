@@ -61,6 +61,6 @@ Temporary Items
 .env
 *.pkl
 .python-version
-poetry.lock
+# poetry.lock
 .envrc
 __pycache__
