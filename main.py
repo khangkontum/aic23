@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.plato import predict
 import pickle
 
 app = FastAPI()
@@ -23,7 +22,7 @@ app.add_middleware(
 class CustomUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         if name == "Plato":
-            from app.plato import Plato
+            from plato import Plato
 
             return Plato
         return super().find_class(module, name)
@@ -32,20 +31,19 @@ class CustomUnpickler(pickle.Unpickler):
 @app.on_event("startup")
 def preload_model():
     app.model = CustomUnpickler(
-        open("../plato.pkl", "rb")
+        open("./plato.pkl", "rb")
     ).load()
 
 
 class Query(BaseModel):
     text: str
-    method: str = "dot"
-    top: int = 200
+    top: int = 100
 
 
 @app.post("/query")
 async def query(query: Query):
-    result = predict(
-        app.model, query.text, query.method, query.top
+    result = app.model.predict(
+        query.text, query.top
     )
     for index in range(len(result)):
         del result[index]["clip_embedding"]
