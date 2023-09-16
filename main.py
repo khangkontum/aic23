@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.plato import predict
+from plato import predict, get_key_frame
 import pickle
 
 app = FastAPI()
@@ -23,7 +23,7 @@ app.add_middleware(
 class CustomUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         if name == "Plato":
-            from app.plato import Plato
+            from plato import Plato
 
             return Plato
         return super().find_class(module, name)
@@ -32,7 +32,7 @@ class CustomUnpickler(pickle.Unpickler):
 @app.on_event("startup")
 def preload_model():
     app.model = CustomUnpickler(
-        open("../plato.pkl", "rb")
+        open("./plato.pkl", "rb")
     ).load()
 
 
@@ -41,12 +41,17 @@ class Query(BaseModel):
     method: str = "dot"
     top: int = 200
 
+class KeyFrame(BaseModel):
+    video: str
+    keyframe: str
+
 
 @app.post("/query")
 async def query(query: Query):
     result = predict(
         app.model, query.text, query.method, query.top
     )
+
     for index in range(len(result)):
         del result[index]["clip_embedding"]
         del result[index]["filepath"]
@@ -54,3 +59,10 @@ async def query(query: Query):
     # response = jsonify({"data": result.tolist()})
     # response.status_code = 200
     return {"data": result.tolist()}
+
+
+@app.post("/keyframe")
+async def keyframe(keyframe: KeyFrame):
+    result = get_key_frame(app.model, keyframe.video, keyframe.keyframe)
+
+    return {"mappedKeyFrame": result[0], "youtubeLink": result[1] }

@@ -21,6 +21,13 @@ def featurize(model, text):
         ).float()
     return text_features
 
+def get_key_frame(model, video, keyframe):
+    for sample in model.dataset:
+        if sample["video"] == video and sample["frameid"] == keyframe:
+            return sample["mapped_frameid"], sample["youtube_url"]
+    
+    return "undifined", "undifined"
+
 
 def predict(model, text, method="cosine", top=1000):
     text_features = featurize(model, text)
@@ -33,6 +40,7 @@ def predict(model, text, method="cosine", top=1000):
                     text_features, a.reshape(1, 512)
                 )
             )
+
         print("Sorting...")
         start = time.time()
         _, cosine_dataset = zip(
@@ -42,6 +50,7 @@ def predict(model, text, method="cosine", top=1000):
                 key=lambda x: x[0],
             )
         )
+
         print(
             "Sorting Done in ",
             time.time() - start,
@@ -49,12 +58,13 @@ def predict(model, text, method="cosine", top=1000):
         )
         return copy.deepcopy(
             np.asarray(cosine_dataset)[:top]
-        )
+        ),
 
     elif method == "dot":
         vector_dataset = (
             model.stack_vector @ text_features.numpy().T
         )
+
         _, stacked_dataset = zip(
             *sorted(
                 zip(
