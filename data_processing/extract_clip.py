@@ -30,7 +30,7 @@ def inference(input_path, output_path):
     with torch.no_grad():
         image_features = model.encode_image(image)
         with open(output_path, "wb") as f:
-            np.save(f, image_features.numpy())
+            np.save(f, image_features.cpu().numpy())
 
 
 def process_images(input_folder, output_folder):
