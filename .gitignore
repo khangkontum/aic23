@@ -65,5 +65,8 @@ Temporary Items
 .envrc
 __pycache__
 
+raw/*
 *.jpg
 *.mp4
+*.npy
+*.zip
