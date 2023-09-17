@@ -64,3 +64,6 @@ Temporary Items
 # poetry.lock
 .envrc
 __pycache__
+
+*.jpg
+*.mp4
