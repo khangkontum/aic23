@@ -29,10 +29,13 @@ def extract_frames(video_path):
         os.makedirs(video_frame_folder_path)
 
     # Loop through each frame
-    for frame_number in tqdm(range(0, total_frames, 25)):
+    for frame_number in tqdm(range(0, total_frames)):
         ret, frame = cap.read()
         if not ret:
             break
+
+        if frame_number % 25 != 0:
+            continue
 
         # Save the frame with frame number in the filename
         frame_filename = os.path.join(video_frame_folder_path, f"{frame_number}.jpg")
