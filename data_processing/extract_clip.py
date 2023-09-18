@@ -7,30 +7,40 @@ import numpy as np
 import os
 from PIL import Image
 from tqdm import tqdm
+from transformers import CLIPProcessor, CLIPModel
 
 input_folder = "./raw/frames/"
 
-output_folder = "./raw/features/"
+output_folder = "./raw/features-lation/"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("ViT-B/32", device=device)
+# model, preprocess = clip.load("ViT-B/32", device=device)
+
+model = CLIPModel.from_pretrained(
+    "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+)
+processor = CLIPProcessor.from_pretrained(
+    "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+)
+model = model.to(device)
 
 # Create the output folder if it doesn't exist
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 
-def inference(input_path, output_path):
-    image = (
-        preprocess(Image.open(input_path))
-        .unsqueeze(0)
-        .to(device)
-    )
-
+def inference(input_path: str, output_path: str):
     with torch.no_grad():
-        image_features = model.encode_image(image)
+        features = model.get_image_features(
+            **processor(
+                images=Image.open(input_path),
+                return_tensors="pt",
+            ).to(device)
+        )
+        features = features.cpu().detach().numpy()
+
         with open(output_path, "wb") as f:
-            np.save(f, image_features.cpu().numpy())
+            np.save(f, features)
 
 
 def process_images(input_folder, output_folder):
