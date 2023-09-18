@@ -23,11 +23,18 @@ app.add_middleware(
 
 
 class CustomUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
+    def find_class(self, module, name, version: int):
         if name == "Plato":
-            from plato import Plato
+            if version == 16:
+                from plato import Plato
 
-            return Plato
+                return Plato
+
+            if version == 32:
+                from plato_32 import Plato
+
+                return Plato
+
         return super().find_class(module, name)
 
 
