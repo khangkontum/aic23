@@ -2,6 +2,13 @@ import re
 import numpy as np
 
 
+def get_key_frame(model, video, keyframe):
+    for sample in model.dataset:
+        if sample["video"] == video and sample["frameid"] == keyframe:
+            return sample["mapped_frameid"], sample["youtube_url"]
+    
+    return "undifined", "undifined"
+
 def extract_query(text: str):
     matches = re.findall("([\w\s]+)\s+\$(\d+)", text)
     x = [x[0] for x in matches]

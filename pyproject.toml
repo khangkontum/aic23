@@ -24,6 +24,7 @@ gunicorn = "^21.2.0"
 setuptools = "^68.2.0"
 opencv-python = "^4.8.0.76"
 moviepy = "^1.0.3"
+transformers = "^4.33.2"
 
 
 
