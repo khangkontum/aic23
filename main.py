@@ -92,6 +92,6 @@ async def query(query: Query):
 
 @app.post("/keyframe")
 async def keyframe(keyframe: KeyFrame):
-    result = utils.get_key_frame(app.model, keyframe.video, keyframe.keyframe)
+    result = utils.get_key_frame(app.model['b16'], keyframe.video, keyframe.keyframe)
 
     return {"mappedKeyFrame": result[0], "youtubeLink": result[1] }
