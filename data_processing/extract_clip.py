@@ -10,10 +10,10 @@ from tqdm import tqdm
 
 input_folder = "./raw/frames/"
 
-output_folder = "./raw/features/"
+output_folder = "./raw/features-b16/"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("ViT-B/32", device=device)
+model, preprocess = clip.load("ViT-B/16", device=device)
 
 # Create the output folder if it doesn't exist
 if not os.path.exists(output_folder):
