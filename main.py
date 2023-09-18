@@ -85,7 +85,7 @@ async def query(query: Query):
 
 @app.post("/query")
 async def query(query: Query):
-    model = app.model[query.models]
+    model = app.model[query.model]
     result = model.predict(query.text, query.top)
 
     for index in range(len(result)):
