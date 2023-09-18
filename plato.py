@@ -50,7 +50,7 @@ class Plato:
     def predict(self, text_features, top=1000):
         text_features = self.featurize_text(text_features)
         vector_dataset = self.stack_vector @ text_features.T
-        vector_dataset = np.argsort(vector_dataset.squeeze())[::-1][:top].tolist()
+        vector_dataset = np.argsort(vector_dataset.squeeze())[-top:][::-1].tolist()
 
         return copy.deepcopy(
             [self.dataset[i] for i in vector_dataset]
