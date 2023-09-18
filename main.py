@@ -32,14 +32,6 @@ class CustomUnpickler(pickle.Unpickler):
 
         return super().find_class(module, name)
 
-class CustomUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if name == "Plato":
-            from plato_32 import Plato
-
-            return Plato
-
-        return super().find_class(module, name)
 
 
 @app.on_event("startup")
@@ -50,12 +42,6 @@ def preload_model():
     app.model["b16"] = CustomUnpickler(
         open(os.path.join(model_path, os.getenv("MODEL_16")), "rb")
     ).load()
-
-    app.model["b32"] = CustomUnpickler(
-        open(os.path.join(model_path, os.getenv("MODEL_32")), "rb")
-    ).load()
-
-
 
 class Query(BaseModel):
     text: str
@@ -102,7 +88,7 @@ async def query(query: Query):
         del result[index]["clip_embedding"]
         del result[index]["filepath"]
 
-    return {"data": result.tolist()}
+    return {"data": result}
 
 @app.post("/keyframe")
 async def keyframe(keyframe: KeyFrame):

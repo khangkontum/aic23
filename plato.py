@@ -50,10 +50,11 @@ class Plato:
     def predict(self, text_features, top=1000):
         text_features = self.featurize_text(text_features)
         vector_dataset = self.stack_vector @ text_features.T
-        _, stacked_dataset = zip(
-            *sorted(zip(vector_dataset.squeeze(), self.dataset), reverse=True, key=lambda x: x[0]))
-        res = np.asarray(stacked_dataset)[:top]
-        return copy.deepcopy(res)
+        vector_dataset = np.argsort(vector_dataset.squeeze())[::-1][:top].tolist()
+
+        return copy.deepcopy(
+            [self.dataset[i] for i in vector_dataset]
+        )
 
     def batch_ranking(self, queries):
         result = []
