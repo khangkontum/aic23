@@ -6,6 +6,8 @@ import os
 import torch
 import whisper
 
+import torch.multiprocessing as mp
+
 input_folder = "./raw/sounds"
 output_folder = "./raw/transcript"
 
@@ -16,8 +18,8 @@ if not os.path.exists(output_folder):
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = whisper.load_model("base", device)
 
-def inference_and_save(paths):
-    input_path, output_path = paths
+def inference_and_save(model, input_path, output_path):
+    # input_path, output_path = paths
     result = model.transcribe(input_path)
 
     with open(output_path, "w+") as f:
@@ -27,6 +29,9 @@ def inference_and_save(paths):
 if __name__ == "__main__":
 
     paths = []
+
+    processes = []
+    counter = 0
     for root, _, files in os.walk(input_folder):
         for filename in tqdm(files):
             input_path = os.path.join(root, filename)
@@ -37,9 +42,13 @@ if __name__ == "__main__":
 
             paths.append((input_path, output_path))
 
+            p = mp.Process(target=inference_and_save, args=(model,input_path,output_path))
+            p.start()
+            processes.append(p)
 
+            counter += 1
+            if counter % 4 == 0:
+                for p in processes:
+                    p.join()
 
-    pool = Pool(processes=4)
-    pool.map(inference_and_save, paths , 1) # Ensure the chunk size is 1
-    pool.close()
-    pool.join()
+            del processes[:]

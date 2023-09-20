@@ -29,9 +29,7 @@ class CustomUnpickler(pickle.Unpickler):
 
             return Plato
 
-
         return super().find_class(module, name)
-
 
 
 @app.on_event("startup")
@@ -39,9 +37,18 @@ def preload_model():
     model_path = os.getenv("MODEL_PATH")
 
     app.model = {}
+    print(
+        "model path:",
+        os.path.join(model_path, os.getenv("MODEL_16")),
+        "rb",
+    )
     app.model["b16"] = CustomUnpickler(
-        open(os.path.join(model_path, os.getenv("MODEL_16")), "rb")
+        open(
+            os.path.join(model_path, os.getenv("MODEL_16")),
+            "rb",
+        )
     ).load()
+
 
 class Query(BaseModel):
     text: str
@@ -54,9 +61,11 @@ class Query(BaseModel):
     decay: float = (0.3,)
     window_size: int = (3,)
 
+
 class KeyFrame(BaseModel):
     video: str
     keyframe: str
+
 
 @app.post("/weighted-query")
 async def query(query: Query):
@@ -84,14 +93,16 @@ async def query(query: Query):
     model = app.model[query.model]
     result = model.predict(query.text, query.top)
 
-    for index in range(len(result)):
-        del result[index]["clip_embedding"]
-        del result[index]["filepath"]
-
     return {"data": result}
+
 
 @app.post("/keyframe")
 async def keyframe(keyframe: KeyFrame):
-    result = utils.get_key_frame(app.model['b16'], keyframe.video, keyframe.keyframe)
+    result = utils.get_key_frame(
+        app.model["b16"], keyframe.video, keyframe.keyframe
+    )
 
-    return {"mappedKeyFrame": result[0], "youtubeLink": result[1] }
+    return {
+        "mappedKeyFrame": result[0],
+        "youtubeLink": result[1],
+    }
