@@ -1,6 +1,8 @@
 import os
 from moviepy.editor import *
 from tqdm import tqdm
+from multiprocessing import Pool
+from subprocess import call
 
 os.environ["IMAGEIO_FFMPEG_EXE"] = "/opt/homebrew/Cellar/ffmpeg/6.0_1/bin/ffmpeg"
 
@@ -27,6 +29,7 @@ def extract_sounds(video_path):
 
 if __name__ == "__main__":
     # List all files in the input folder
+    videos = []
     for filename in tqdm(os.listdir(input_folder)):
         if filename.endswith(".mp4") or filename.endswith(
             ".avi"
@@ -34,4 +37,11 @@ if __name__ == "__main__":
             video_path = os.path.join(
                 input_folder, filename
             )
-            extract_sounds(video_path)
+            videos.append(video_path )
+            # extract_sounds(video_path)
+
+
+    pool = Pool(processes=4)
+    pool.map(extract_sounds, videos , 1) # Ensure the chunk size is 1
+    pool.close()
+    pool.join()
