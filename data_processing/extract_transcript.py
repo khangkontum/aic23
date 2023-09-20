@@ -12,7 +12,7 @@ if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device)
+model = whisper.load_model("large", device)
 
 if __name__ == "__main__":
     for root, _, files in os.walk(input_folder):
@@ -26,4 +26,4 @@ if __name__ == "__main__":
             result = model.transcribe(input_path)
 
             with open(output_path, "w+") as f:
-                json.dump(result, f, indent = 6)
+                json.dump(result, f, indent = 6, ensure_ascii=False)
