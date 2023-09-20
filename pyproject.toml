@@ -6,27 +6,29 @@ authors = ["khangkontum <khangkontum@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-fastapi = "0.101.1"
-numpy = "1.25.2"
-torch = ">=2.0.0, !=2.0.1"
-scikit-learn = "1.3.0"
-tqdm = "4.66.1"
-nltk = "3.8.1"
 clip = { git = "https://github.com/openai/CLIP.git" }
-python-dotenv = "1.0.0"
+fastapi = "0.101.1"
 ftfy = "^6.1.1"
-regex = "^2023.8.8"
-pillow = "^10.0.0"
-torchvision = "0.15.1"
-uvicorn = "^0.23.2"
 gunicorn = "^21.2.0"
-setuptools = "^68.2.0"
-opencv-python = "^4.8.0.76"
+imageio-ffmpeg = "0.2.0"
+llvmlite="0.40.1"
 moviepy = "^1.0.3"
+nltk = "3.8.1"
+numpy = "1.22.4"
+openai-whisper = { git = "https://github.com/openai/whisper.git" }
+opencv-python = "^4.8.0.76"
+pillow = "^10.0.0"
+python = "3.9.9"
+python-dotenv = "1.0.0"
+regex = "^2023.8.8"
+scikit-learn = "1.3.0"
+setuptools = "^68.2.0"
+torch = ">=2.0.0, !=2.0.1"
+torchvision = "0.15.1"
+tqdm = "4.66.1"
 transformers = "^4.33.2"
-
-
+uvicorn = "^0.23.2"
+numba = "^0.57.1"
 
 
 [build-system]

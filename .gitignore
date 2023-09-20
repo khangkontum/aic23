@@ -68,5 +68,6 @@ __pycache__
 raw/*
 *.jpg
 *.mp4
+*.mp3
 *.npy
 *.zip
