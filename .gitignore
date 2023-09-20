@@ -71,3 +71,4 @@ raw/*
 *.mp3
 *.npy
 *.zip
+*.json
