@@ -1,6 +1,7 @@
 import os
 import cv2
-from tqdm import tqdm
+import multiprocessing
+from tqdm.contrib.concurrent import thread_map
 
 # Input folder containing videos
 input_folder = "./raw/vids/video"
@@ -29,7 +30,7 @@ def extract_frames(video_path):
         os.makedirs(video_frame_folder_path)
 
     # Loop through each frame
-    for frame_number in tqdm(range(0, total_frames)):
+    for frame_number in range(0, total_frames):
         ret, frame = cap.read()
         if not ret:
             break
@@ -41,22 +42,29 @@ def extract_frames(video_path):
         frame_filename = os.path.join(video_frame_folder_path, f"{frame_number}.jpg")
         cv2.imwrite(frame_filename, frame)
 
-        # Print progress
-        # print(f"Extracting frame {frame_number}/{total_frames}")
-
     # Release the video capture object
     cap.release()
 
 
 if __name__ == "__main__":
+    files = []
     # List all files in the input folder
-    for filename in tqdm(os.listdir(input_folder)):
+    for filename in os.listdir(input_folder):
         if filename.endswith(".mp4") or filename.endswith(
             ".avi"
         ):
             video_path = os.path.join(
                 input_folder, filename
             )
-            extract_frames(video_path)
+
+            files.append(video_path)
+
+
+
+    cores = multiprocessing.cpu_count()
+
+    print("Run with {} workers".format(cores))
+
+    thread_map(extract_frames, selected_files, max_workers=cores * 2)
 
     print("Frame extraction complete.")
