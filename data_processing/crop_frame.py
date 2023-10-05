@@ -59,12 +59,10 @@ if __name__ == "__main__":
 
             files.append(video_path)
 
-
-
     cores = multiprocessing.cpu_count()
 
     print("Run with {} workers".format(cores))
 
-    thread_map(extract_frames, selected_files, max_workers=cores * 2)
+    thread_map(extract_frames, files, max_workers=cores * 2)
 
     print("Frame extraction complete.")

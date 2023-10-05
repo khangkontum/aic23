@@ -16,7 +16,7 @@ if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device)
+model = whisper.load_model("large", device)
 
 def inference_and_save(model, input_path, output_path):
     # input_path, output_path = paths
@@ -40,15 +40,16 @@ if __name__ == "__main__":
                 filename,
             ).replace(".mp3", ".json")
 
-            paths.append((input_path, output_path))
+            index = int(input_path.split("/")[-1][1:3])
+            if index < 21:
+                continue
+             
+            print(index)
+            inference_and_save((input_path, output_path))
+            # paths.append((input_path, output_path))
 
-            p = mp.Process(target=inference_and_save, args=(model,input_path,output_path))
-            p.start()
-            processes.append(p)
 
-            counter += 1
-            if counter % 4 == 0:
-                for p in processes:
-                    p.join()
-
-            del processes[:]
+    # pool = Pool(processes=22)
+    # pool.map(inference_and_save, paths , 1) # Ensure the chunk size is 1
+    # pool.close()
+    # pool.join()
