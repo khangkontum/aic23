@@ -37,20 +37,20 @@ class CustomUnpickler(pickle.Unpickler):
 
 @app.on_event("startup")
 async def preload_model():
-    model_path = os.getenv("MODEL_PATH")
+    # model_path = os.getenv("MODEL_PATH")
 
-    app.model = {}
-    print(
-        "model path:",
-        os.path.join(model_path, os.getenv("MODEL_16")),
-        "rb",
-    )
-    app.model["b16"] = CustomUnpickler(
-        open(
-            os.path.join(model_path, os.getenv("MODEL_16")),
-            "rb",
-        )
-    ).load()
+    # app.model = {}
+    # print(
+    #     "model path:",
+    #     os.path.join(model_path, os.getenv("MODEL_16")),
+    #     "rb",
+    # )
+    # app.model["b16"] = CustomUnpickler(
+    #     open(
+    #         os.path.join(model_path, os.getenv("MODEL_16")),
+    #         "rb",
+    #     )
+    # ).load()
 
     c = Client(
         host="127.0.0.1",
@@ -159,15 +159,20 @@ async def asrquery(asrquery: ASRQuery):
     res = []
     # print(results)
     for r in results:
-        vid_id, frame_start, _ = r.decode("utf-8").split(
+        vid_id, frame_start, frame_end = r.decode("utf-8").split(
             "-"
         )
+
         frame_start = int(float(frame_start) * 25)
+        frame_end = int(float(frame_end) * 25)
+        frame_mid = ((frame_start + frame_end) >> 1)
+        frame_mid -= frame_mid % 25
+
         res.append(
             {
                 "text": app.text_data[vid_id][frame_start],
-                "start": frame_start,
-                "video": vid_id,
+                "frame_id": frame_mid,
+                "video_id": vid_id,
             },
         )
 
