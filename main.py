@@ -64,7 +64,7 @@ class Query(BaseModel):
 
 class KeyFrame(BaseModel):
     video: str
-    keyframe: str
+    keyframe: int
 
 
 @app.post("/weighted-query")
@@ -106,3 +106,37 @@ async def keyframe(keyframe: KeyFrame):
         "mappedKeyFrame": result[0],
         "youtubeLink": result[1],
     }
+
+
+class ASRQuery(BaseModel):
+    text: str
+    top: int = 40
+
+@app.post("/asr_fuzzy")
+async def asrquery(asrquery: ASRQuery):
+    results = utils.get_result_fuzzy_search(query=asrquery.text, top=asrquery.top)
+
+    return [
+        {
+            "mappedText": result[1],
+            "similarity": result[2],
+            "video": result[0],
+            "keyframeStart": int(float(result[3]) * 25),
+            "youtubeLink": utils.get_utube_link(app.model["b16"], result[0], result[3]),
+        }
+        for result in results
+    ]
+
+@app.post("/asr_fulltext")
+async def asrquery(asrquery: ASRQuery):
+    results = utils.fulltext_search(query=asrquery.text, top=asrquery.top)
+
+    return [
+        {
+            "mappedText": result[1],
+            "video": result[0],
+            "keyframeStart": int(float(result[2]) * 25),
+            "youtubeLink": utils.get_utube_link(app.model["b16"], result[0], result[2]),
+        }
+        for result in results
+    ]
