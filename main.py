@@ -2,8 +2,11 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from asonic import Client
+from asonic.enums import Channel
 
 import os
+import json
 import pickle
 import utils
 
@@ -33,21 +36,52 @@ class CustomUnpickler(pickle.Unpickler):
 
 
 @app.on_event("startup")
-def preload_model():
-    model_path = os.getenv("MODEL_PATH")
+async def preload_model():
+    # model_path = os.getenv("MODEL_PATH")
 
-    app.model = {}
-    print(
-        "model path:",
-        os.path.join(model_path, os.getenv("MODEL_16")),
-        "rb",
+    # app.model = {}
+    # print(
+    #     "model path:",
+    #     os.path.join(model_path, os.getenv("MODEL_16")),
+    #     "rb",
+    # )
+    # app.model["b16"] = CustomUnpickler(
+    #     open(
+    #         os.path.join(model_path, os.getenv("MODEL_16")),
+    #         "rb",
+    #     )
+    # ).load()
+
+    c = Client(
+        host="127.0.0.1",
+        port=1491,
+        password="admin",
+        max_connections=100,
     )
-    app.model["b16"] = CustomUnpickler(
-        open(
-            os.path.join(model_path, os.getenv("MODEL_16")),
-            "rb",
-        )
-    ).load()
+    await c.channel(Channel.SEARCH)
+    app.client = c
+
+    files = []
+    asr_folder = "./data_processing/raw/transcript/"
+    app.text_data = {}
+
+    for file in os.listdir(asr_folder):
+        if file.endswith(".json"):
+            file_path = os.path.join(asr_folder, file)
+            vid_id = file.split(".")[0]
+            with open(
+                file_path, "r", encoding="utf-8"
+            ) as f:
+                data = json.load(f)["segments"]
+                app.text_data[vid_id] = {}
+
+                for segment in data:
+                    start = int(
+                        float(segment["start"]) * 25
+                    )
+                    app.text_data[vid_id][start] = segment[
+                        "text"
+                    ]
 
 
 class Query(BaseModel):
@@ -112,37 +146,37 @@ class ASRQuery(BaseModel):
     text: str
     top: int = 40
 
-@app.post("/asr_fuzzy")
+
+@app.post("/asr")
 async def asrquery(asrquery: ASRQuery):
-    results = utils.get_result_fuzzy_search(query=asrquery.text, top=asrquery.top)
+    results = await app.client.query(
+        collection="asr",
+        bucket="test",
+        terms=asrquery.text,
+        limit=asrquery.top,
+    )
 
-    return [
-        {
-            "mappedText": result[1],
-            "similarity": result[2],
-            "video": result[0],
-            "keyframeStart": int(float(result[3]) * 25),
-            "youtubeLink": utils.get_utube_link(app.model["b16"], result[0], result[3]),
-        }
-        for result in results
-    ]
+    res = []
+    # print(results)
+    for r in results:
+        vid_id, frame_start, _ = r.decode("utf-8").split(
+            "-"
+        )
+        frame_start = int(float(frame_start) * 25)
+        res.append(
+            {
+                "text": app.text_data[vid_id][frame_start],
+                "start": frame_start,
+                "video": vid_id,
+            },
+        )
 
-@app.post("/asr_fulltext")
-async def asrquery(asrquery: ASRQuery):
-    results = utils.fulltext_search(query=asrquery.text, top=asrquery.top)
+    return res
 
-    return [
-        {
-            "mappedText": result[1],
-            "video": result[0],
-            "keyframeStart": int(float(result[2]) * 25),
-            "youtubeLink": utils.get_utube_link(app.model["b16"], result[0], result[2]),
-        }
-        for result in results
-    ]
 
 class Respond(BaseModel):
     text: str
+
 
 @app.post("/print_log")
 async def printLog(respond: Respond):

@@ -72,3 +72,4 @@ raw/*
 *.npy
 *.zip
 *.json
+debug*
