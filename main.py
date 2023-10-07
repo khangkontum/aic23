@@ -140,3 +140,10 @@ async def asrquery(asrquery: ASRQuery):
         }
         for result in results
     ]
+
+class Respond(BaseModel):
+    text: str
+
+@app.post("/print_log")
+async def printLog(respond: Respond):
+    utils.print_log(respond.text, "log.txt")

@@ -6,6 +6,9 @@ import os
 from fuzzywuzzy import process
 from unidecode import unidecode
 
+import datetime
+import pytz
+
 
 def get_key_frame(model, video, keyframe):
     for sample in model.dataset:
@@ -110,6 +113,17 @@ def fulltext_search(directory = "./transcript", query = "", top=None):
     if top:
         return matches[:top]
     return matches
+
+HCM_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+def print_log(text, file_path):
+    cur_time = datetime.datetime.now(HCM_tz)
+    try:
+        with open(file_path, "a") as f:
+            f.write(cur_time.strftime('%Y-%m-%d %H:%M:%S') + " -> " + text + '\n')
+        print(f"Write to {file_path} successfully")
+        
+    except Exception as e:
+        print("Write file error:", str(e))
 
 
 if __name__ == "__main__":
