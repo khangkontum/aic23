@@ -37,20 +37,20 @@ class CustomUnpickler(pickle.Unpickler):
 
 @app.on_event("startup")
 async def preload_model():
-    # model_path = os.getenv("MODEL_PATH")
+    model_path = os.getenv("MODEL_PATH")
 
-    # app.model = {}
-    # print(
-    #     "model path:",
-    #     os.path.join(model_path, os.getenv("MODEL_16")),
-    #     "rb",
-    # )
-    # app.model["b16"] = CustomUnpickler(
-    #     open(
-    #         os.path.join(model_path, os.getenv("MODEL_16")),
-    #         "rb",
-    #     )
-    # ).load()
+    app.model = {}
+    print(
+        "model path:",
+        os.path.join(model_path, os.getenv("MODEL_16")),
+        "rb",
+    )
+    app.model["b16"] = CustomUnpickler(
+        open(
+            os.path.join(model_path, os.getenv("MODEL_16")),
+            "rb",
+        )
+    ).load()
 
     c = Client(
         host="127.0.0.1",
