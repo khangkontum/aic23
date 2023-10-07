@@ -67,6 +67,8 @@ class Plato:
             vector_dataset.squeeze()
         )[-top:][::-1].tolist()
 
+        ignored_videos = ['L18_V006', 'L19_V048',  'L20_V010', 'L22_V023', 'L22_V024', 'L35_V005']
+
         return [
             {
                 "frameid": self.dataset[i]["frameid"],
@@ -75,7 +77,7 @@ class Plato:
                     "youtube_url"
                 ],
             }
-            for i in vector_dataset
+            for i in vector_dataset if self.dataset[i]["video"] not in ignored_videos
         ]
 
     def batch_ranking(self, queries):
