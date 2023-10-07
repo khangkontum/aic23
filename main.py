@@ -98,7 +98,7 @@ class Query(BaseModel):
 
 class KeyFrame(BaseModel):
     video: str
-    keyframe: int
+    keyframe: str
 
 
 @app.post("/weighted-query")
